@@ -1,0 +1,97 @@
+<!-- import polymer-element's definition -->
+<link rel="import" href="packages/polymer/polymer.html">
+
+
+<polymer-element name="p-fixed-scroll-pane" attributes="ewidth images">
+    <template>   
+        <style>
+            #widget {
+                height:  {{ewidth}};
+                width:   1000px;
+                bborder:  1px solid black;
+                overflow: hidden;
+                -webkit-transition: height 2s;
+            }
+            
+            .element {
+                min-height:         100px;
+                min-width:          100px;
+                -webkit-transition: margin 2s;
+            }
+            
+            #frame {
+                -webkit-transition: margin 2s;
+                height:             {{ewidth}}; 
+                width:              1100px;
+                display:            -webkit-box;
+                display:            -webkit-flex;
+                display:            flex;              
+                box-sizing:         border-box;
+                -webkit-flex-flow:  row nowrap;
+                flex-wrap:          nowrap;
+                overflow:           visible;               
+                position:           relative;
+                -webkit-transition: margin 0.5s;
+                
+                background: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #EEE), color-stop(.25, transparent)),
+                            -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #EEE), color-stop(.25, transparent)),
+                            -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #EEE)),
+                            -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #EEE));
+                
+                -webkit-background-size:200px 201px; /* override value for shitty webkit */
+    
+                background-position: 0 0, 100px 0, 100px -100px, 0px 100px;
+            }
+           
+            #left-arrow, #right-arrow {
+                position:           absolute;
+                z-index:            10;
+                opacity:            0.1;
+                width:              50px;
+                height:             100px;
+                -webkit-transition: margin 2s, opacity 1s;
+            }
+            
+            #left-arrow {
+                left: 0px;
+                width: 30px;
+            }
+            
+            #right-arrow {
+                right: 100px; 
+                width: 30px;
+                bborder: 1px solid blue;
+            }
+            
+            #left-arrow:hover, #right-arrow:hover {
+                opacity:            1.0;
+               -webkit-transition: margin 2s, opacity 1s;
+            }
+            
+            #e0 {
+                margin-left: -10px;
+                -webkit-transition:  margin 2s, opacity 1s;
+            }
+            
+            #pane {
+                margin-left:         0px;
+                -webkit-transition:  margin 1s, opacity 1s;
+            }
+        </style>
+        
+        <div id="widget">
+            <div id="frame">
+                <div id="left-arrow"><canvas width=30 height=100 on-click="{{left_callback}}"></canvas> </div>
+                <div id="right-arrow"><canvas width=30 height=100 on-click="{{right_callback}}"></canvas> </div>
+                <div id='pane'>
+                    <template repeat="{{image in images}}"><canvas width="100" height="100" class="element" id="{{image}}" draggable=true></canvas></template>
+                </div>
+            </div>     
+        </div>
+        
+    </template>
+    
+    <script type="application/dart" src="pfixedscrollpane.dart"></script>
+</polymer-element>
+
+

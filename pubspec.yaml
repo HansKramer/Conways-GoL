@@ -3,6 +3,7 @@ description: A sample Polymer application
 dependencies:
     polymer: ">=0.12.0 <0.13.0"
     crypto: any
+    three:  any
 transformers:
 - polymer:
     entry_points: web/gameoflife.html

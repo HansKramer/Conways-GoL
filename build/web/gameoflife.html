@@ -1,0 +1,915 @@
+<!DOCTYPE html><!--
+
+    \Author    Hans Kramer
+    
+    \Date      June 2015
+    
+--><html><head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>Conway's Game of Life</title>
+
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+    </head>
+  
+    <body><script src="packages/web_components/platform.js"></script><script src="packages/web_components/dart_support.js"></script>
+
+
+
+
+<!-- unminfied for debugging:
+<link rel="import" href="src/js/polymer/layout.html">
+<script src="src/js/polymer/polymer.concat.js"></script>
+-->
+
+
+
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3;
+  -webkit-flex: 3;
+  flex: 3;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4;
+  -webkit-flex: 4;
+  flex: 4;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5;
+  -webkit-flex: 5;
+  flex: 5;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6;
+  -webkit-flex: 6;
+  flex: 6;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7;
+  -webkit-flex: 7;
+  flex: 7;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8;
+  -webkit-flex: 8;
+  flex: 8;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9;
+  -webkit-flex: 9;
+  flex: 9;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11;
+  -webkit-flex: 11;
+  flex: 11;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12;
+  -webkit-flex: 12;
+  flex: 12;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center], html /deep/ [layout][center-center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified], html /deep/ [layout][center-center] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: around;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style><script src="packages/polymer/src/js/polymer/polymer.js"></script><script>
+// TODO(sigmund): remove this script tag (dartbug.com/19650). This empty
+// script tag is necessary to work around a bug in Chrome 36.
+</script><polymer-element name="gol-canvas" attributes="generation world_width world_height">
+    <template>
+        <style>
+            div {
+                font-size:   12pt;
+                margin-top:  10px;
+            }
+            button {
+                font-size:     24pt;
+                margin-bottom: 20px;
+            }
+            canvas {
+                background:    #fcfcfc;
+            }
+        </style>
+        <canvas id="canvas"></canvas>
+        
+        <div>generation: {{generation}}</div> 
+    
+    </template>
+    
+</polymer-element>
+
+
+
+
+
+<polymer-element name="p-button-box" attributes="buttons registered command">
+    <template>
+        <style>
+            #widget {
+                border-style: solid;
+                border-width: 1px;
+                border-color: rgba(130,130,130,0.3);
+                wwidth:        1000px;
+                background:   #E0E0E0;
+                box-sizing:   border-box;
+            }
+            #frame {
+                padding:    0px;
+                margin:     0px;
+                list-style: none;
+                
+                width:      100%;
+                padding:    10px;
+
+                display:    -webkit-box;
+                display:    -webkit-flex;
+                display:    flex;
+                
+                box-sizing: border-box;
+
+                -webkit-flex-flow: row nowrap;
+                justify-content:   space-around;
+            }
+            .button {
+                flex-grow:    1;
+                mmargin-left: 10px;
+                height:       30px;
+                font-size:    12pt;
+                box-sizing:    border-box;
+                
+            }
+        </style>
+        
+        <div id="widget">
+            <div id="frame">
+                <template repeat="{{button in buttons}}">
+                    <button class="button" id="{{button}}" on-click="{{callback}}">{{button}}</button>
+                </template>
+            </div>
+        </div>
+    </template>
+    
+    
+</polymer-element>
+
+
+
+
+
+<polymer-element name="p-button" attributes="button registered">
+    <template>
+        <style>
+            #widget {
+                border-style: solid;
+                border-width: 1px;
+                border-color: rgba(130,130,130,0.3);
+                wwidth:        1000px;
+                background:   #E0E0E0;
+                box-sizing:   border-box;
+            }
+            .button {
+                mmargin-left: 10px;
+                height:       30px;
+                font-size:    12pt;
+                box-sizing:   border-box;
+                
+            }
+            
+            #widget,
+           .iphone-toggle-buttons *,
+.iphone-toggle-buttons *::before,
+.iphone-toggle-buttons *::after
+{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+ 
+    input[type="checkbox"] + span::after, input[type="radio"] + span::after {
+        content: "off";
+    }
+ 
+    input[type="checkbox"]:checked + span::after, input[type="radio"]:checked + span::after {
+        content: "on";
+    }
+ 
+    #widget {
+        -webkit-user-select: none;
+        user-select:         none;
+    }
+ 
+    #widget {
+        margin: 4px 0;
+    }
+ 
+    label, input[type="checkbox"] + span, input[type="radio"] + span, input[type="checkbox"] + span::before,
+    input[type="radio"] + span::before, input[type="checkbox"] + span::after, input[type="radio"] + span::after {
+        display: inline-block;
+    }
+ 
+    label, input[type="checkbox"] + span, input[type="radio"] + span {
+        vertical-align: middle;
+    }
+ 
+input[type="checkbox"] + span,
+input[type="radio"] + span,
+input[type="checkbox"] + span::before,
+input[type="radio"] + span::before,
+input[type="checkbox"] + span::after,
+input[type="radio"] + span::after
+{
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+ 
+input[type="checkbox"] + span::before,
+input[type="radio"] + span::before,
+input[type="checkbox"] + span::after,
+input[type="radio"] + span::after,
+input[type="checkbox"]:checked + span::before,
+input[type="radio"]:checked + span::before,
+input[type="checkbox"]:checked + span::after,
+input[type="radio"]:checked + span::after
+{
+    top: 0;
+}
+ 
+input[type="checkbox"] + span::after,
+input[type="radio"] + span::after,
+input[type="checkbox"]:checked + span::before,
+input[type="radio"]:checked + span::before
+{
+    right: 0;
+}
+ 
+input[type="checkbox"] + span::before,
+input[type="radio"] + span::before,
+input[type="checkbox"]:checked + span::after,
+input[type="radio"]:checked + span::after
+{
+    left: 0;
+}
+ 
+input[type="checkbox"],
+input[type="radio"],
+input[type="checkbox"] + span::before,
+input[type="radio"] + span::before,
+input[type="checkbox"] + span::after,
+input[type="radio"] + span::after
+{
+    position: absolute;
+}
+ 
+    label {
+        margin: 4px;
+        cursor: pointer;
+    }
+ 
+    input[type="checkbox"], input[type="radio"] {
+        filter: alpha(opacity=0);
+        -moz-opacity: 0;
+        -webkit-opacity: 0;
+        opacity: 0;
+    }
+ 
+input[type="checkbox"] + span, input[type="radio"] + span
+{
+    width: 100px;
+    height: 30px;
+    font: bold 14px/30px Arial, Sans-serif;
+    color: #8c8c8c;
+    text-transform: uppercase;
+    border: solid 1px #bcbbbb;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#c8c8c8", endColorstr="#f3f3f3");
+    background: -moz-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -webkit-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -o-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -ms-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: linear-gradient(top, #c8c8c8, #f3f3f3);
+    position: relative;
+    text-indent: -9999px;
+}
+ 
+input[type="checkbox"] + span::before, input[type="radio"] + span::before
+{
+    content: "";
+    width: 40%;
+    height: 29px;
+    border-top: solid 1px #fff;
+    border-right: solid 1px #bebebe;
+    background: -moz-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -webkit-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -o-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -ms-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: linear-gradient(top, #cfcfcf, #f9f9f9);
+    -moz-box-shadow: 1px 0 1px #bebebe;
+    -webkit-box-shadow: 1px 0 1px #bebebe;
+    box-shadow: 1px 0 1px #bebebe;
+}
+ 
+input[type="checkbox"] + span::after, input[type="radio"] + span::after
+{
+    text-indent: 0;
+    width: 62%;
+    height: 32px;
+    text-align: center;
+}
+ 
+input[type="checkbox"]:checked + span,
+input[type="radio"]:checked + span
+{
+    background: -moz-linear-gradient(top, #1b45bd, #5d96ea);
+    background: -webkit-linear-gradient(top, #1b45bd, #5d96ea);
+    background: -o-linear-gradient(top, #1b45bd, #5d96ea);
+    background: -ms-linear-gradient(top, #1b45bd, #5d96ea);
+    background: linear-gradient(top, #1b45bd, #5d96ea);
+    color: #fff;
+    text-shadow: -1px -1px #0d2046;
+}
+ 
+input[type="checkbox"]:checked + span::before,
+input[type="radio"]:checked + span::before
+{
+    left: auto;
+    -moz-box-shadow: -2px 0 1px #3a5e91;
+    -webkit-box-shadow: -2px 0 1px #3a5e91;
+    box-shadow: -2px 0 1px #3a5e91;
+}
+ 
+    input[type="checkbox"]:checked + span::after,  input[type="radio"]:checked + span::after {
+        border-top:            solid 1px #0f2a4f;
+        border-bottom:         solid 1px #0f2a4f;
+        border-left:           solid 1px #2c5496;
+        height:                30px;
+        top:                  -1px;
+        left:                 -1px;
+        -moz-border-radius:    4px 0 0 4px;
+        -webkit-border-radius: 4px 0 0 4px;
+        border-radius:         4px 0 0 4px;
+    }
+
+        </style>
+        
+        <div id="widget">
+            <button class="button" id="{{button}}" on-click="{{callback}}">{{button}}</button>   
+            <label for="checkbox-0">hello<input type="checkbox" name="checkbox-0" id="checkbox-0"><span>checkbox 0</span></label>
+        </div>
+    </template>
+    
+    
+</polymer-element>
+
+
+
+
+<polymer-element name="p-toggle-button" attributes="text command state">
+    <template>
+        <style>
+            #widget {
+                display:               inline-block;
+                border-style:          solid;
+                border-width:          1px;
+                border-color:          rgba(130, 130, 130, 0.3);
+                background:            #E0E0E0;
+                -webkit-box-sizing:    content-box;
+                -moz-box-sizing:       content-box;
+                box-sizing:            content-box;
+                -webkit-user-select:   none;
+                user-select:           none;
+                margin:                4px;
+                padding:               2px;
+                -moz-border-radius:    4px;
+                -webkit-border-radius: 4px;
+                border-radius:         4px;
+            }
+
+            .button {
+                mmargin-left: 10px;
+                height:       30px;
+                font-size:    12pt;
+                box-sizing:   border-box;
+            }
+ 
+            label {
+                margin: 4px;
+                cursor: pointer;
+            }
+ 
+            #button_label::after {
+                content: "off";
+            }
+ 
+            #button_label {
+                margin-left: 0px;
+            }
+
+            label, input + span, input + span::before, input + span::after {
+                display: inline-block;
+            }
+ 
+            label, input + span {
+                vertical-align:   middle;
+            }
+
+            input + span, input + span::before, input + span::after {
+                -moz-border-radius:    4px;
+                -webkit-border-radius: 4px;
+                border-radius:         4px;
+            }
+
+            input + span::before, input + span::after, input:checked + span::before, input:checked + span::after {
+                top: 0;
+            }
+ 
+            input {
+                -moz-opacity:    0;
+                -webkit-opacity: 0;
+                opacity:         0;
+            }
+ 
+            input + span {
+                position:       relative;
+                width:          100px;
+                width:          60px;
+                width:          54px;
+                height:         30px;
+                height:         28px;
+                height:         26px;
+                height:         22px;
+                font:           bold 14px/30px Arial, Sans-serif;
+                font:           bold 10px/25px Helvetica, Sans-serif;
+                color:          #8c8c8c;
+                text-transform: uppercase;
+                border:         solid 1px #bcbbbb;
+                background:     -moz-linear-gradient(top, #c8c8c8, #f3f3f3);
+                background:     -webkit-linear-gradient(top, #c8c8c8, #f3f3f3);
+                background:     linear-gradient(top, #c8c8c8, #f3f3f3);
+                text-indent:    -9999px;
+            }
+
+            input + span::before {
+                content:            "";
+                width:              40%;
+                height:             29px;
+                height:             27px;
+                height:             25px;
+                height:             21px;
+                border-top:         solid 1px #fff;
+                border-right:       solid 1px #bebebe;
+                background:         -moz-linear-gradient(top, #cfcfcf, #f9f9f9);
+                background:         -webkit-linear-gradient(top, #cfcfcf, #f9f9f9);
+                background:         linear-gradient(top, #cfcfcf, #f9f9f9);
+                -moz-box-shadow:    1px 0 1px #bebebe;
+                -webkit-box-shadow: 1px 0 1px #bebebe;
+                box-shadow:         1px 0 1px #bebebe;
+            }
+ 
+            input + span::after {
+                text-indent: 0;
+                width:       62%;
+                height:      32px;
+                height:      29px;
+                height:      27px;
+                height:      23px;
+                text-align:  center;
+            }
+ 
+            #label {
+                position:     relative;
+                top:          1px;
+                margin-right: 4px;
+                margin-left:  4px;
+            }
+ 
+            input + span::after, input:checked + span::before {
+                right: -1px;
+            }
+ 
+            input + span::before, input:checked + span::after {
+                left: 0;
+            }
+            
+            input, input + span::before, input + span::after {
+                position: absolute;
+            }
+            
+            input:checked + #button_label::after {
+                border-top:            solid 1px #0f2a4f;
+                border-bottom:         solid 1px #0f2a4f;
+                border-left:           solid 1px #2c5496;
+                height:                30px;
+                height:                28px;
+                height:                26px;
+                height:                22px;
+                top:                  -1px;
+                left:                 -1px;
+                -moz-border-radius:    4px 0 0 4px;
+                -webkit-border-radius: 4px 0 0 4px;
+                border-radius:         4px 0 0 4px;
+                content:               "on";
+            }
+            
+            input:checked + span {
+                background:  -moz-linear-gradient(top, #1b45bd, #5d96ea);
+                background:  -webkit-linear-gradient(top, #1b45bd, #5d96ea);
+                background:  linear-gradient(top, #1b45bd, #5d96ea);
+                color:       #fff;
+                text-shadow: -1px -1px #0d2046;
+            }
+ 
+            input:checked + span::before {
+                left:               auto;
+                -moz-box-shadow:    -2px 0 1px #3a5e91;
+                -webkit-box-shadow: -2px 0 1px #3a5e91;
+                box-shadow:         -2px 0 1px #3a5e91;
+            }
+            
+            #test {
+                border: 4px solid blue;
+            }
+        </style>
+
+        <div id="widget"><span id="label">{{text}}</span><label for="checkbox"><input type="checkbox" id="checkbox" on-click="{{callback}}"><span id="button_label"></span></label></div>
+    </template>
+       
+    
+</polymer-element>
+
+
+
+
+
+<polymer-element name="p-fixed-scroll-pane" attributes="ewidth images">
+    <template>   
+        <style>
+            #widget {
+                height:  {{ewidth}};
+                width:   1000px;
+                bborder:  1px solid black;
+                overflow: hidden;
+                -webkit-transition: height 2s;
+            }
+            
+            .element {
+                min-height:         100px;
+                min-width:          100px;
+                -webkit-transition: margin 2s;
+            }
+            
+            #frame {
+                -webkit-transition: margin 2s;
+                height:             {{ewidth}}; 
+                width:              1100px;
+                display:            -webkit-box;
+                display:            -webkit-flex;
+                display:            flex;              
+                box-sizing:         border-box;
+                -webkit-flex-flow:  row nowrap;
+                flex-wrap:          nowrap;
+                overflow:           visible;               
+                position:           relative;
+                -webkit-transition: margin 0.5s;
+                
+                background: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #EEE), color-stop(.25, transparent)),
+                            -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #EEE), color-stop(.25, transparent)),
+                            -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #EEE)),
+                            -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #EEE));
+                
+                -webkit-background-size:200px 201px; /* override value for shitty webkit */
+    
+                background-position: 0 0, 100px 0, 100px -100px, 0px 100px;
+            }
+           
+            #left-arrow, #right-arrow {
+                position:           absolute;
+                z-index:            10;
+                opacity:            0.1;
+                width:              50px;
+                height:             100px;
+                -webkit-transition: margin 2s, opacity 1s;
+            }
+            
+            #left-arrow {
+                left: 0px;
+                width: 30px;
+            }
+            
+            #right-arrow {
+                right: 100px; 
+                width: 30px;
+                bborder: 1px solid blue;
+            }
+            
+            #left-arrow:hover, #right-arrow:hover {
+                opacity:            1.0;
+               -webkit-transition: margin 2s, opacity 1s;
+            }
+            
+            #e0 {
+                margin-left: -10px;
+                -webkit-transition:  margin 2s, opacity 1s;
+            }
+            
+            #pane {
+                margin-left:         0px;
+                -webkit-transition:  margin 1s, opacity 1s;
+            }
+        </style>
+        
+        <div id="widget">
+            <div id="frame">
+                <div id="left-arrow"><canvas width="30" height="100" on-click="{{left_callback}}"></canvas> </div>
+                <div id="right-arrow"><canvas width="30" height="100" on-click="{{right_callback}}"></canvas> </div>
+                <div id="pane">
+                    <template repeat="{{image in images}}"><canvas width="100" height="100" class="element" id="{{image}}" draggable="true"></canvas></template>
+                </div>
+            </div>     
+        </div>
+        
+    </template>
+    
+    
+</polymer-element>
+
+
+<style>body {
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.2em;
+  margin: 15px;
+}
+
+h1, p {
+  color: #333;
+}
+
+#sample_container_id {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+
+</style><style>
+            p-button-box::shadow div {
+                width:  1000px;
+            }
+            
+            .moving {
+                opacity: 0.25;
+                -webkit-transform: scale(0.1);
+                -moz-transform:    scale(0.1);
+                transform:         scale(0.1);
+            }
+        </style>
+        <h1>Conway's Game of Life</h1><p-toggle-button style="width:200px;" text="Examples" command="examples.hide(this.state)"></p-toggle-button>
+        
+        <p-fixed-scroll-pane id="examples" ewidth="100px" images="['dart', 'dragon', 'cross', 'glider', 'pulsar', 'blinker', 'windmill', 'wasp', 'unix', 'coeship', 'orion',
+         'canadagoose', 'hammerhead', 'swan', 'spider', 'turtle']"></p-fixed-scroll-pane>
+        
+        <p-button-box id="bbox" buttons="['start', 'stop', 'reset']" registered="{'reset': 'gol.reset'}" command="{'start': 'gol.loop()', 'stop': 'gol.cancel()'}"></p-button-box>
+        <gol-canvas id="gol" world_width="100" world_height="70"></gol-canvas>
+        <!-- <script type="application/dart">export 'package:polymer/init.dart';</script> -->
+        
+        
+    
+
+<script src="gameoflife.html_bootstrap.dart.js" async=""></script></body></html>

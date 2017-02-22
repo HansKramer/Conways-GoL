@@ -41,15 +41,16 @@
     </head>
   
     <body>
-        <h1>Conway's Game of Life</h1><p-toggle-button style="width:200px;" text="Examples" command="gol.hide(state)"></p-toggle-button>
+        <h1>Conway's Game of Life</h1><p-toggle-button style="width:200px;" text="Examples" command="examples.hide(this.state)"></p-toggle-button>
         
         <p-fixed-scroll-pane id=examples ewidth="100px" images="['dart', 'dragon', 'cross', 'glider', 'pulsar', 'blinker', 'windmill', 'wasp', 'unix', 'coeship', 'orion',
          'canadagoose', 'hammerhead', 'swan', 'spider', 'turtle']"></p-fixed-scroll-pane>
         
-        <p-button-box id="bbox" buttons="['start', 'stop', 'reset']" registered="{'start': 'gol.loop', 'stop': 'gol.cancel', 'reset': 'gol.reset'}"></p-button-box>
+        <p-button-box id="bbox" buttons="['start', 'stop', 'reset']" registered="{'reset': 'gol.reset'}" 
+                     command="{'start': 'gol.loop()', 'stop': 'gol.cancel()'}"></p-button-box>
         <gol-canvas id="gol" world_width="100" world_height="70"></gol-canvas>
-    
-        <script type="application/dart">export 'package:polymer/init.dart';</script>
+        <!-- <script type="application/dart">export 'package:polymer/init.dart';</script> -->
+        <script type="application/dart" src="gameoflife.dart"></script>
         <script src="packages/browser/dart.js"></script>
     </body>
 </html>

@@ -1,93 +1,96 @@
 import 'package:polymer/polymer.dart';
 import 'dart:html';
-import 'dart:async';
-import 'package:crypto/crypto.dart';
-import 'dart:mirrors';
+import 'pwidget.dart';
 
 
+/*
 class PWidget extends PolymerElement {
     PWidget.created() : super.created() {
       
     }
     
-    Symbol get_method(String call) {
-        List<String> callback = call.split('.');
+    get_value(String value) {
+        value = value.trim();
+       
+        // is it a string?
+        if ( (value[0] == '"' && value[value.length-1] == '"') || 
+             (value[0] == "'" && value[value.length-1] == "'") )
+            return value.substring(1, value.length-1);
         
-        if (callback.length != 2) {
-            print("Invalid method specification; ${call}");
-            return null;
+        // is it a int?
+        int int_value = int.parse(value, onError: (error) => null);   
+        if (int_value != null)
+            return int_value;
+        
+        // is it a double?
+        double double_value = double.parse(value, (error) => null);
+        if (double_value != null)
+            return double_value;
+        
+        // it is a instance value?
+        var im = value.split('.');
+        if (im.length == 2)
+            if (im[0].trim() == "this")
+                return reflect(this).getField(new Symbol(im[1])).reflectee;
+            else
+                return reflect(context[im[0]]).getField(new Symbol(im[1])).reflectee;
+        
+        // not supported
+        print("not supported value : ${value}");
+        return null;
+    }
+    
+    bool exec(String call) {
+        var s1 = call.trim().split('\(');
+        if (s1.length != 2) {
+            print("invalid command call $call");
+            return false;
         }
-        Element e = document.querySelector("#" + callback[0]);
-        if (e == null) {
-            print("Invalid method specification, cannot find instance ${callback[0]}; ${call}");
-            return null;
+        if (s1[1][s1[1].length-1] != ')') {
+            print("invalid command call $call");
+            return false;
         }
-        InstanceMirror klass = reflect(e);
-        Symbol method = new Symbol(callback[1]);
-        if (! klass.type.instanceMembers.keys.contains(method)) {
-            print("Invalid method specification, method not defined ${callback[1]}; ${call}");
-            return null;
+        var argument_list = s1[1].substring(0, s1[1].length-1).split(',');
+
+        var s2 = s1[0].split('.');
+        if (s2.length > 2) {
+            print("complex indirections not supported");
+            return false;
         }
         
-        return method;
+        var instance;
+        if (s2.length == 1 || s2[0].trim() == "this") {
+            instance = reflect(this);
+        } else {
+            instance = reflect(context[s2[0]]);
+        }
+        Symbol method = new Symbol(s2[1]);
+        
+        var args  = [];
+        for (var value in argument_list) 
+            args.add(this.get_value(value));
+        instance.invoke(method, args);
+        
+        // print(instance.type.declarations[method].parameters[index].type.simpleName);
+     
+        return true;
     }
 }
+ */
 
 @CustomTag('p-toggle-button')
-class PButton extends PolymerElement {
+class PButton extends PWidget {
 
     @observable String text; 
     @observable String command;
-    @observable String state;
-    
-    //bool state = false;
+    @observable bool   state = true;
     
     PButton.created() : super.created() {
-        print("PButton.created $text $command");
         $['checkbox'].checked = true;
     }
     
     void callback(MouseEvent event) {
-        //this.state = !this.state;
-        InputElement e = $['checkbox'];
-        
-        print("hello ${e.checked} ${command}");
-        if (e.checked) {
-            print("checked");
-        }
-        
-        //RegExp exp = new RegExp("([^,]+\(.+?\))|([^,]+)");
-        //RegExp exp = new RegExp(r"([A-Za-z]\w*)(^,\s*([A-Za-z]\w*))");
-        RegExp exp = new RegExp(r"([A-Za-z]\w*)(?:^,\s*([A-Za-z]\w*))*");
-        //String str = "Parse my string";
-        Iterable<Match> matches = exp.allMatches("state,fuckers,   kudt,hufters");
-        print(matches);
-        for (Match match in matches) {
-            print(match.groupCount);
-            String m = match.group(0);
-            m = match.group(1);
-            print(match.group(1));
-            print(match.group(2));
-        }
-      /*
-        List<String> callback = this.registered.split('.');
-        if (callback.length != 2) {
-            print("PButton: Invalid callback; ${registered}");
-            return;
-        }
-        Element e = document.querySelector("#" + callback[0]);
-        if (e == null) {
-            print("PButton: Invalid callback, cannot find instance ${callback[0]}; ${registered}");
-            return;
-        }
-        InstanceMirror klass = reflect(e);
-        Symbol method = new Symbol(callback[1]);
-        if (! klass.type.instanceMembers.keys.contains(method)) {
-            print("PButton: Invalid callback, method not defined ${callback[1]}; ${registered}");
-            return;
-        }
-        klass.invoke(method, []);
-        * 
-         */
+        this.state = ! $['checkbox'].checked;
+        this.exec(command); 
     }
 }

@@ -93,6 +93,10 @@ packages:
     description: template_binding
     source: hosted
     version: "0.12.1"
+  three:
+    description: three
+    source: hosted
+    version: "0.2.5+1"
   utf:
     description: utf
     source: hosted

@@ -504,7 +504,7 @@ class GolCanvas extends PolymerElement {
     void loop() {
         this.generation = 0;
         this.running = true;
-        const oneSec = const Duration(milliseconds:100);
+        const oneSec = const Duration(milliseconds:10);
         new Timer.periodic(oneSec, this.run_loop);
     }
     
@@ -527,4 +527,13 @@ class GolCanvas extends PolymerElement {
             for (int i=0; i<world_width; i++) 
                 this.fill_cell(i, j, this.dead_color);
     }
+    
+    void hide(bool state) {
+        print("state:${state}");
+    }
+    
+    void aaa(double x, int a, String b) {
+          print("aaa: <$x>, <$a>, <$b>");
+    }
+      
 }

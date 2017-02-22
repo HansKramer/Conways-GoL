@@ -1,0 +1,55 @@
+<!-- import polymer-element's definition -->
+<link rel="import" href="packages/polymer/polymer.html">
+
+
+<polymer-element name="p-button-box" attributes="buttons registered">
+    <template>
+        <style>
+            #widget {
+                border-style: solid;
+                border-width: 1px;
+                border-color: rgba(130,130,130,0.3);
+                wwidth:        1000px;
+                background:   #E0E0E0;
+                box-sizing:   border-box;
+            }
+            #frame {
+                padding:    0px;
+                margin:     0px;
+                list-style: none;
+                
+                width:      100%;
+                padding:    10px;
+
+                display:    -webkit-box;
+                display:    -webkit-flex;
+                display:    flex;
+                
+                box-sizing: border-box;
+
+                -webkit-flex-flow: row nowrap;
+                justify-content:   space-around;
+            }
+            .button {
+                flex-grow:    1;
+                mmargin-left: 10px;
+                height:       30px;
+                font-size:    12pt;
+                box-sizing:    border-box;
+                
+            }
+        </style>
+        
+        <div id="widget">
+            <div id="frame">
+                <template repeat="{{button in buttons}}">
+                    <button class="button" id={{button}} on-click="{{callback}}">{{button}}</button>
+                </template>
+            </div>
+        </div>
+    </template>
+    
+    <script type="application/dart" src="pbuttonbox.dart"></script>
+</polymer-element>
+
+

@@ -1,0 +1,27 @@
+<!-- import polymer-element's definition -->
+<link rel="import" href="packages/polymer/polymer.html">
+
+<polymer-element name="gol-canvas" attributes="generation world_width world_height">
+    <template>
+        <style>
+            div {
+                font-size:   12pt;
+                margin-top:  10px;
+            }
+            button {
+                font-size:     24pt;
+                margin-bottom: 20px;
+            }
+            canvas {
+                background:    #fcfcfc;
+            }
+        </style>
+        <canvas id="canvas"></canvas>
+        
+        <div>generation: {{generation}}</div> 
+    
+    </template>
+    <script type="application/dart" src="golcanvas.dart"></script>
+</polymer-element>
+
+

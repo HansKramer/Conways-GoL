@@ -12,6 +12,7 @@ class PFixedScrollPane extends PolymerElement {
     DivElement pane;
     int        position = 0;
     int        visible  = 3;
+    String     height;
     Map<String, ImageElement> image_list;
     
     PFixedScrollPane.created() : super.created() {
@@ -36,8 +37,13 @@ class PFixedScrollPane extends PolymerElement {
         }      
     }
     
-    void hide() {
-        $['widget'].style.height = "0px";  
+    void hide(bool value) {
+        print("Hide : ${value}");
+        if (value == true) {
+            this.height = $['widget'].style.height;
+            $['widget'].style.height = "0px"; 
+        } else
+            $['widget'].style.height = this.height;
     }
     
     void on_drag_start(MouseEvent event, String image) {
